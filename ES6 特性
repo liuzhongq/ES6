@@ -1,0 +1,238 @@
+
+                                                                   ES6 特性（主要）
+一、let、const变量声明
+1.Let命令
+（1）ES6 新增了let命令，用来声明变量。它的用法类似于var，但是所声明的变量，只在let命令所在的代码块内有效。 
+      {
+          let a = 3;
+          var b = 58;
+      }
+      console.log(a) // ReferenceError: a is not defined
+      console.log(b) // 58
+	上面代码在代码中，分别用let和var声明了两个变量。然后在代码块之外调用这两个变量，let声明的变量报错，var声明的变量返回了正确的值。这表明，let声明的变量只在它所在的代码块有效。
+let命令适合像for循环这类的计数器
+       {
+          let a = 3;
+          var b = 58;
+      }
+      console.log(a) // ReferenceError: a is not defined
+      console.log(b) // 58
+同样的，在上面代码中，计数器i只在for循环体内有效，在循环体外引用就会报错。
+（2）let 纠正var存在的变量提升现象
+      // 用 var 声明变量
+      console.log(foo); // 输出undefined
+      var foo = 2;
+
+      // 用 let 声明变量
+      console.log(bar); // 报错ReferenceError
+      let bar = 2;
+
+上面代码中，变量foo用var命令声明，就会发生变量提升，即运行时，变量foo已经存在了，但是没有值，所以会输出undefined。变量bar用let命令声明，就避免发生变量提升。这表示在声明它之前，变量bar不存在，如果用到它，就会抛出一个错误 bar is not defined。
+（3）ES5中有全局和函数作用域无块级作用域，而在ES6
+中，let就提供了块级作用域而且允许块级作用域任意嵌套
+    function fn() {
+        let n = 5;
+        if (true) {
+            let n = 10;
+        }
+        console.log(n);    // 5
+    }
+上面的函数有两个代码块，都声明了变量n，运行后输出 5。即外层代码块不受内层代码块的影响。如果变量使用var定义，最后输出的值才是 10。
+2.Const命令
+	（1）const声明一个只读的常量。一旦声明，常量的值就不能改变。（可以为const所声明的变量添加属性）
+        const x = 3.1415;
+        console.log(x)   // 3.1415
+        x = 3;  // TypeError: Assignment to constant variable.
+ 
+上述代码，即Const声明的变量不能改变值，一旦声明就必须初始化。
+（2）const的作用域与let命令相同：只在声明所在的块级作用域内有效。
+（3）对于const来说，只声明不赋值，就会报错。
+（4）const命令声明的常量也是不提升，同样存在暂时性死区，只能在声明的位置后面使用。
+二、数组功能扩展
+  扩展运算符（spread）是三个点（...）。它将一个数组转为用逗号分隔的参数序列。
+    console.log(1, ...[2, 3, 4], 5)// 1 2 3 4 5
+       （1）替代apply等方法
+           function f(x, y, z) {
+              // ...
+          }
+          let args = [0, 1, 2];
+          f.apply(null, args);// ES5 写法
+          f(...args); // ES6 写法
+       （2）Array.from()
+Array.from方法用于将两类对象转为真正的数组：类似数组的对象和可遍历的对象（包括 ES6 新增的数据结构 Set 和 Map）。
+           let obj = {
+              '0': 'a',
+              '1': 'b',
+              '2': 'c',
+              length: 3
+          };
+
+          // ES5的写法
+          var arr1 = [].slice.call(obj); // ['a', 'b', 'c']
+
+          // ES6的写法
+          let arr2 = Array.from(obj); // ['a', 'b', 'c']
+          
+（3）Array.of()
+ Array.of方法用于将一组值，转换为数组。是弥补数组构造函数Array()的不足。基本可以替代Array()或new Array()
+      Array.of(3, 11, 8) // [3,11,8]
+      Array.of(3) // [3]
+      Array.of(3).length // 1
+      Array() // []
+      Array(3) // [, , ,]
+      Array(3, 11, 8) // [3, 11, 8]
+（4）find() 和 findIndex()
+数组实例的 find 方法，用于找出第一个符合条件的数组成员。它的参数是一个回调函数，所有数组成员依次执行该回调函数，直到找出第一个返回值为 true 的成员，然后返回该成员。如果没有符合条件的成员，则返回 undefined。
+     [1, 4, -5, 10].find((n) => n < 0);  // -5
+数组实例的 findIndex 方法的用法与 find 方法非常类似，返回第一个符合条件的数组成员的位置，如果所有成员都不符合条件，则返回-1。
+     [1, 5, 10, 15].findIndex(function(value, index, arr) {
+        return value > 9;
+    })   // 2
+（5）includes()   (替代indexOf()方法)
+Array.prototype.includes 方法返回一个布尔值，表示某个数组是否包含给定的值。该方法的第二个参数表示搜索的起始位置，默认为 0。如果第二个参数为负数，则表示倒数的位置，如果这时它大于数组长度（比如第二个参数为-4，但数组长度为 3），则会重置为从 0 开始。
+    [1, 2, 3].includes(2)   // true
+    [1, 2, 3].includes(3, -1); // true
+    [1, 2, 3, 5, 1].includes(1, 2); // true
+（6）entries()，keys() 和 values()
+ES6 提供 entries()，keys()和 values(),用于遍历数组。它们都返回一个遍历器对象，可以用 for…of 循环进行遍历，唯一的区别是 keys()是对键名的遍历、values()是对键值的遍历，entries()是对键值对的遍历。
+ 
+    for (let index of ['a', 'b'].keys()) {
+        console.log(index);
+    }
+    // 0
+    // 1
+
+    for (let elem of ['a', 'b'].values()) {
+        console.log(elem);
+    }
+    // 'a'
+    // 'b'
+
+    for (let [index, elem] of ['a', 'b'].entries()) {
+        console.log(index, elem);
+    }
+    // 0 "a"
+    // 1 "b"
+
+三、解构赋值
+ES6 允许按照一定模式，从数组和对象中提取值，对变量进行赋值，这称为解构。
+1.数组的解构赋值
+之前，为变量赋值，只能直接指定值。
+  let a = 1;
+  let b = 2;
+  let c = 3;
+
+ES6允许写成以下形式
+  let [a, b, c] = [1, 2, 3];
+如解构不成功，变量的值就为undefined
+  let [foo] = [];
+  let [bar, foo] = [1];
+注：ES6 内部使用严格相等运算符（===），判断一个位置是否有值。所以，只有当一个数组成员严格等于undefined，默认值才会生效。
+  let [x = 1] = [undefined];
+  x // 1
+
+  let [x = 1] = [null];
+  x // null
+上面代码中，如果一个数组成员是null，默认值就不会生效，因为null不严格等于undefined。
+2.对象的解构赋值
+   let { bar, foo } = { foo: 'aaa', bar: 'bbb' };
+   foo // "aaa"
+   bar // "bbb"
+
+   let { baz } = { foo: 'aaa', bar: 'bbb' };
+   baz // undefined
+对象的解构与数组有一个重要的不同。数组的元素是按次序排列的，变量的取值由它的位置决定；而对象的属性没有次序，变量必须与属性同名，才能取到正确的值。否则undefined。对象的解构赋值的内部机制，是先找到同名属性，然后再赋给对应的变量。真正被赋值的是后者，而不是前者。
+  let { foo: baz } = { foo: 'aaa', bar: 'bbb' };
+  baz // "aaa"
+  foo // error: foo is not defined
+解构也可用于嵌套结构的对象
+   let obj = {
+      p: [
+          'Hello',
+          { y: 'World' }
+      ]
+  };
+
+  let { p: [x, { y }] } = obj;
+  x // "Hello"
+  y // "World"
+嵌套赋值
+  let obj = {};
+  let arr = [];
+
+  ({ foo: obj.prop, bar: arr[0] } = { foo: 123, bar: true });
+
+  obj // {prop:123}
+  arr // [true]
+
+ES6 的规则是，只要有可能导致解构的歧义，就不得使用圆括号。
+但是，这条规则实际上不那么容易辨别，处理起来相当麻烦。因此，建议只要有可能，就不要在模式中放置圆括号。
+
+四、箭头函数
+    ES6 允许使用“箭头”（=>）定义函数。它主要有两个作用：缩减代码和改变 this 指向
+     const double1 = function(number){
+        return number * 2;   //ES5写法
+    }
+    const double2 = (number) => {
+        return number * 2;    //ES6写法
+    }
+const double3 = number => number * 2; // 箭头函数简化后
+如果箭头函数直接返回一个对象，必须在对象外面加上括号，否则会报错。
+箭头函数的this永远指向其父作用域，任何方法都改变不了，包括call，apply，bind。普通函数的this指向调用它的那个对象。
+  var id = 0;
+  var obj = {
+      id: 1,
+      show1: function(){
+          setTimeout(() => {
+              console.log(this.id)
+          }, 1000)
+      },
+
+      show2: function(){
+          setTimeout(function(){
+              console.log(this.id)
+          }, 2000)
+      }
+  }
+
+obj.show1();    //  1
+obj.show2();    //  0
+
+上述代码块中，obj 分别调用了 show1 和 show2 两个方法，所以show1 和 show2 中的 this 都是指向 obj，
+show1 中， setTimeout 里面是箭头函数，从作用域链中找到 show1 中的 this，所以它的 this 就是 obj 对象；
+show2 中，setTimeout 里面的函数换成普通函数，函数自主调用，所以他的 this 就是 window 对象。
+ 注：
+（1）函数体内的 this 对象，就是定义时所在的对象，而不是使用时所在的对象。
+（2）不可以当作构造函数，也就是说，不可以使用 new 命令，否则会抛出一个错误。
+（3）不可以使用 arguments 对象，该对象在函数体内不存在。如果要用，可以用 rest 参数代替。
+（4）不可以使用 yield 命令，因此箭头函数不能用作 Generator 函数。
+五、Symbol
+	  ES6 引入了一种新的原始数据类型Symbol，表示独一无二的值。它是 JavaScript 语言的第七种数据类型，前六种是：undefined、null、布尔值（Boolean）、字符串（String）、数值（Number）、对象（Object）。Symbol 值通过Symbol函数生成。这就是说，对象的属性名现在可以有两种类型，一种是原来就有的字符串，另一种就是新增的 Symbol 类型。凡是属性名属于 Symbol 类型，就都是独一无二的，可以保证不会与其他属性名产生冲突。
+六、Promise
+Promise 是异步编程的一种解决方案，比传统的解决方案——回调函数和事件——更合理和更强大。它由社区最早提出和实现，ES6 将其写进了语言标准，统一了用法，原生提供了Promise对象。Promise，简单说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，从它可以获取异步操作的消息。Promise 提供统一的 API，各种异步操作都可以用同样的方法进行处理。Promise对象有以下两个特点。
+（1）对象的状态不受外界影响。Promise对象代表一个异步操作，有三种状态：pending（进行中）、fulfilled（已成功）和rejected（已失败）。只有异步操作的结果，可以决定当前是哪一种状态，任何其他操作都无法改变这个状态。这也是Promise这个名字的由来，它的英语意思就是“承诺”，表示其他手段无法改变。
+（2）一旦状态改变，就不会再变，任何时候都可以得到这个结果。Promise对象的状态改变，只有两种可能：从pending变为fulfilled和从pending变为rejected。只要这两种情况发生，状态就凝固了，不会再变了，会一直保持这个结果，这时就称为 resolved（已定型）。如果改变已经发生了，你再对Promise对象添加回调函数，也会立即得到这个结果。这与事件（Event）完全不同，事件的特点是，如果你错过了它，再去监听，是得不到结果的。
+Promise对象是一个构造函数，用来生成Promise实例。
+   const promise = new Promise(function(resolve, reject) {
+      // ... some code
+
+      if( 如果异步操作成功 ){
+          resolve(value);
+      } else {
+          reject(error);
+      }
+  });
+Promise实例生成以后，可以用then方法分别指定resolved状态和rejected状态的回调函数。
+   promise.then(function(value) {
+      // success
+  }, function(error) {
+      // error
+  });
+then方法可以接受两个回调函数作为参数。第一个回调函数是Promise对象的状态变为resolved时调用，第二个回调函数是Promise对象的状态变为rejected时调用。其中，第二个函数是可选的，不一定要提供。这两个函数都接受Promise对象传出的值作为参数。
+Catch方法，一个方法返回一个 Promise 对象，如果该对象状态变为resolved，则会调用then方法指定的回调函数；如果异步操作抛出错误，状态就会变为rejected，就会调用catch方法指定的回调函数，处理这个错误。另外，then方法指定的回调函数，如果运行中抛出错误，也会被catch方法捕获。
+七、Set和Map（之前做过分享，就不阐述了）
+八、Class和传统构造函数的区别
+（1）Class 在语法上更加贴合面向对象的写法
+（2）Class 实现继承更加易读、易理解，对初学者更加友好
+（3）本质还是语法糖，使用 prototype
+
